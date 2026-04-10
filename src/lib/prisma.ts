@@ -1,27 +1,29 @@
-let _prisma: any = null;
+import { PrismaClient } from '@prisma/client';
+import { PrismaLibSQL } from '@prisma/adapter-libsql';
+import { createClient } from '@libsql/client';
 
-export function db(url?: string, authToken?: string): any {
+let _prisma: PrismaClient | null = null;
+
+export function db(url?: string, authToken?: string): PrismaClient {
   if (_prisma) return _prisma;
 
-  const dbUrl = url;
+  const dbUrl = url || process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
+  const token = authToken || process.env.TURSO_AUTH_TOKEN;
+
   if (!dbUrl) {
-    throw new Error('Database URL must be passed to db()');
+    throw new Error('No database URL configured');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const libsqlModule = require('@libsql/client');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const adapterModule = require('@prisma/adapter-libsql');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const prismaModule = require('@/generated/prisma/client');
+  // For local SQLite files, don't use the adapter
+  if (dbUrl.startsWith('file:')) {
+    _prisma = new PrismaClient();
+    return _prisma;
+  }
 
-  const createClient = libsqlModule.createClient || libsqlModule.default?.createClient;
-  const PrismaLibSql = adapterModule.PrismaLibSql || adapterModule.default?.PrismaLibSql;
-  const PrismaClient = prismaModule.PrismaClient || prismaModule.default?.PrismaClient;
-
-  const libsql = createClient({ url: dbUrl, authToken: authToken || undefined });
-  const adapter = new PrismaLibSql(libsql);
-  _prisma = new PrismaClient({ adapter });
+  // For Turso/libsql URLs, use the adapter
+  const libsql = createClient({ url: dbUrl, authToken: token });
+  const adapter = new PrismaLibSQL(libsql as any);
+  _prisma = new PrismaClient({ adapter } as any);
   return _prisma;
 }
 
