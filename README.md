@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mordillo Collector
 
-## Getting Started
+Application web de suivi et catalogage de puzzles Mordillo 1000 pieces, tous editeurs confondus.
 
-First, run the development server:
+## Fonctionnalites
+
+- **Catalogue complet** : 30 puzzles Mordillo pre-charges (Heye, Clementoni) avec raretes, prix estimes, references
+- **Suivi de collection** : Marquer les puzzles possedes, ajouter etat/prix d'achat/notes
+- **Dashboard** : Statistiques completes (progression, valeur, puzzles rares)
+- **Galerie visuelle** : Grille filtree par editeur, rarete, statut de possession
+- **Monitoring marche** : Suivi des annonces eBay, Vinted, Leboncoin
+- **Systeme d'alertes** : Notifications pour puzzles manquants, rares, bonnes affaires
+- **Score de deal** : Evaluation automatique des prix par rapport au marche
+- **Import/Export CSV** : Gestion de collection portable
+- **Signalement** : Possibilite de flaguer des donnees incertaines
+
+## Stack technique
+
+- **Frontend** : Next.js 16 + React 19 + Tailwind CSS 4
+- **Backend** : Next.js API Routes
+- **Base de donnees** : SQLite via Prisma ORM
+- **UI** : Design dark premium avec accents ambres/dores
+
+## Installation et lancement
 
 ```bash
+# Cloner le repo
+git clone <url-du-repo>
+cd mordillo-collector
+
+# Installer les dependances
+npm install
+
+# Generer le client Prisma
+npx prisma generate
+
+# Creer la base de donnees + migration
+npx prisma migrate dev
+
+# Charger les donnees de demonstration (30 puzzles Mordillo)
+npx prisma db seed
+
+# Lancer le serveur de developpement
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrir http://localhost:3000 dans le navigateur.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploiement
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Vercel (recommande)
 
-## Learn More
+1. Pousser le code sur GitHub
+2. Connecter le repo a Vercel
+3. Pour la production, migrer vers PostgreSQL via Supabase :
+   - Creer un projet Supabase
+   - Mettre a jour `DATABASE_URL` dans les variables d'environnement Vercel
+   - Changer le provider dans `prisma/schema.prisma` de `sqlite` a `postgresql`
+   - Relancer les migrations
 
-To learn more about Next.js, take a look at the following resources:
+### Variables d'environnement
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+DATABASE_URL="file:./dev.db"     # SQLite local
+ALERT_EMAIL="votre@email.com"    # Email pour les alertes
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Structure du projet
 
-## Deploy on Vercel
+```
+src/
+  app/
+    api/                 # API Routes
+      puzzles/           # CRUD puzzles
+      collection/        # Gestion collection
+      listings/          # Annonces marche
+      alerts/            # Alertes
+      export/            # Export CSV
+      import/            # Import CSV
+    gallery/             # Page galerie
+    collection/          # Page collection
+    market/              # Page marche
+    alerts/              # Page alertes
+    settings/            # Page parametres
+    page.tsx             # Dashboard
+  components/            # Composants reutilisables
+    ui/                  # Composants UI de base
+    PuzzleCard.tsx       # Carte puzzle
+    StatsCard.tsx        # Carte statistique
+    Sidebar.tsx          # Navigation laterale
+  lib/
+    prisma.ts            # Client Prisma singleton
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+prisma/
+  schema.prisma          # Schema de base de donnees
+  seed.cjs               # Donnees de demonstration
+  migrations/            # Migrations SQL
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Compte par defaut
+
+- Email : jhoussiere@yahoo.fr
+- Mot de passe : admin123
