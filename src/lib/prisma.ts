@@ -1,24 +1,15 @@
-let _prisma: any = null;
+import { PrismaClient } from '@/generated/prisma/client';
 
-export function db(): any {
+let _prisma: InstanceType<typeof PrismaClient> | null = null;
+
+export function db(): InstanceType<typeof PrismaClient> {
   if (_prisma) return _prisma;
 
-  // Use eval to completely prevent Turbopack from analyzing these requires
-  const _require = eval('require');
-  const { PrismaClient } = _require('@prisma/client');
-  const { PrismaLibSql } = _require('@prisma/adapter-libsql');
-  const { createClient } = _require('@libsql/client');
-
-  const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
-  const authToken = process.env.TURSO_AUTH_TOKEN;
-
-  if (!url) {
-    throw new Error('No database URL configured');
-  }
-
-  const libsql = createClient({ url, authToken });
-  const adapter = new PrismaLibSql(libsql);
-  _prisma = new PrismaClient({ adapter });
+  // Import adapter from a .js file that won't be statically analyzed by Turbopack
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { createAdapter } = require('./create-prisma.js');
+  const adapter = createAdapter();
+  _prisma = new PrismaClient({ adapter } as any);
   return _prisma;
 }
 
