@@ -24,8 +24,8 @@ export async function GET(request: NextRequest) {
     db().marketListing.count({ where }),
   ]);
 
-  const result = listings.map((l) => {
-    let dealScore = null;
+  const result = listings.map((l: any) => {
+    let dealScore: number | null = null;
     if (l.price && l.puzzle?.estimatedPrice) {
       const ratio = l.price / l.puzzle.estimatedPrice;
       dealScore = Math.max(1, Math.min(10, Math.round((1 - ratio) * 10 + 5)));

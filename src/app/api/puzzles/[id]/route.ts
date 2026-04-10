@@ -28,7 +28,7 @@ export async function GET(
       }
     : null;
 
-  let dealScore = null;
+  let dealScore: number | null = null;
   if (puzzle.estimatedPrice && puzzle.marketListings.length > 0) {
     const cheapest = Math.min(
       ...puzzle.marketListings.filter((l) => l.price).map((l) => l.price!)

@@ -33,7 +33,7 @@ export async function GET() {
     return s;
   };
 
-  const rows = items.map((item) => [
+  const rows = items.map((item: any) => [
     escape(item.puzzle.name),
     escape(item.puzzle.publisher),
     escape(item.puzzle.year),
@@ -49,7 +49,7 @@ export async function GET() {
     escape(item.notes),
   ]);
 
-  const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const csv = [headers.join(','), ...rows.map((r: any) => r.join(','))].join('\n');
 
   return new NextResponse(csv, {
     headers: {
