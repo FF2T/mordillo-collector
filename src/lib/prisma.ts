@@ -8,17 +8,20 @@ export function db(url?: string, authToken?: string): any {
     throw new Error('Database URL must be passed to db()');
   }
 
-  // Dynamic import at runtime - avoids Turbopack static analysis
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { createClient } = require('@libsql/client/web') as typeof import('@libsql/client/web');
+  const libsqlModule = require('@libsql/client');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { PrismaLibSql } = require('@prisma/adapter-libsql') as typeof import('@prisma/adapter-libsql');
+  const adapterModule = require('@prisma/adapter-libsql');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { PrismaClient } = require('@/generated/prisma/client') as typeof import('@/generated/prisma/client');
+  const prismaModule = require('@/generated/prisma/client');
 
-  const libsql = createClient({ url: dbUrl, authToken: authToken || '' });
-  const adapter = new (PrismaLibSql as any)(libsql);
-  _prisma = new PrismaClient({ adapter } as any);
+  const createClient = libsqlModule.createClient || libsqlModule.default?.createClient;
+  const PrismaLibSql = adapterModule.PrismaLibSql || adapterModule.default?.PrismaLibSql;
+  const PrismaClient = prismaModule.PrismaClient || prismaModule.default?.PrismaClient;
+
+  const libsql = createClient({ url: dbUrl, authToken: authToken || undefined });
+  const adapter = new PrismaLibSql(libsql);
+  _prisma = new PrismaClient({ adapter });
   return _prisma;
 }
 
