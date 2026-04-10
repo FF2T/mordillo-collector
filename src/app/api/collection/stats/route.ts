@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/prisma';
 
 export async function GET() {
+  const prisma = db();
   const [totalPuzzles, ownedItems, allPuzzles] = await Promise.all([
-    db().puzzle.count(),
+    prisma.puzzle.count(),
     db().collectionItem.findMany({
       where: { userId: 1 },
       include: { puzzle: true },
