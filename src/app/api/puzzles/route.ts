@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import _db from '@/lib/prisma';
-const db = () => _db(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN);
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
@@ -41,7 +40,7 @@ export async function GET(request: NextRequest) {
   }
 
   const [puzzles, total] = await Promise.all([
-    db().puzzle.findMany({
+    prisma.puzzle.findMany({
       where,
       orderBy,
       skip: (page - 1) * limit,
@@ -50,7 +49,7 @@ export async function GET(request: NextRequest) {
         collectionItems: { where: { userId: 1 }, take: 1 },
       },
     }),
-    db().puzzle.count({ where }),
+    prisma.puzzle.count({ where }),
   ]);
 
   const result = puzzles.map((p) => ({
@@ -69,7 +68,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const puzzle = await db().puzzle.create({
+  const puzzle = await prisma.puzzle.create({
     data: {
       name: body.name,
       image: body.image || null,

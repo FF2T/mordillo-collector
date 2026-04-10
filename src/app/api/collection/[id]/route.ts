@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import _db from '@/lib/prisma';
-const db = () => _db(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN);
+import { prisma } from '@/lib/prisma';
 
 export async function PUT(
   request: NextRequest,
@@ -8,7 +7,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const item = await db().collectionItem.update({
+  const item = await prisma.collectionItem.update({
     where: { id: parseInt(id) },
     data: {
       condition: body.condition,
@@ -27,6 +26,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  await db().collectionItem.delete({ where: { id: parseInt(id) } });
+  await prisma.collectionItem.delete({ where: { id: parseInt(id) } });
   return NextResponse.json({ success: true });
 }

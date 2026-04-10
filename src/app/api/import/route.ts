@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import _db from '@/lib/prisma';
-const db = () => _db(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN);
+import { prisma } from '@/lib/prisma';
 
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
@@ -62,10 +61,10 @@ export async function POST(request: NextRequest) {
     const name = vals[nameIdx];
     if (!name) continue;
 
-    const existing = await db().puzzle.findFirst({ where: { name } });
+    const existing = await prisma.puzzle.findFirst({ where: { name } });
     if (existing) { skipped++; continue; }
 
-    await db().puzzle.create({
+    await prisma.puzzle.create({
       data: {
         name,
         publisher: pubIdx >= 0 ? vals[pubIdx] || 'Unknown' : 'Unknown',

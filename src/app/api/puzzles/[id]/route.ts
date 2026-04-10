@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import _db from '@/lib/prisma';
-const db = () => _db(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN);
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const puzzle = await db().puzzle.findUnique({
+  const puzzle = await prisma.puzzle.findUnique({
     where: { id: parseInt(id) },
     include: {
       collectionItems: { where: { userId: 1 }, take: 1 },
@@ -53,7 +52,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const puzzle = await db().puzzle.update({
+  const puzzle = await prisma.puzzle.update({
     where: { id: parseInt(id) },
     data: {
       name: body.name,
@@ -77,6 +76,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  await db().puzzle.delete({ where: { id: parseInt(id) } });
+  await prisma.puzzle.delete({ where: { id: parseInt(id) } });
   return NextResponse.json({ success: true });
 }

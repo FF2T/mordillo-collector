@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import _db from '@/lib/prisma';
-const db = () => _db(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN);
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
@@ -15,14 +14,14 @@ export async function GET(request: NextRequest) {
   if (matched === 'false') where.puzzleId = null;
 
   const [listings, total] = await Promise.all([
-    db().marketListing.findMany({
+    prisma.marketListing.findMany({
       where,
       include: { puzzle: { select: { id: true, name: true, estimatedPrice: true } } },
       orderBy: { detectedAt: 'desc' },
       skip: (page - 1) * limit,
       take: limit,
     }),
-    db().marketListing.count({ where }),
+    prisma.marketListing.count({ where }),
   ]);
 
   const result = listings.map((l: any) => {

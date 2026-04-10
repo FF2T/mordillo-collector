@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import _db from '@/lib/prisma';
-const db = () => _db(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN);
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-  const items = await db().collectionItem.findMany({
+  const items = await prisma.collectionItem.findMany({
     where: { userId: 1 },
     include: { puzzle: true },
     orderBy: { puzzle: { name: 'asc' } },
