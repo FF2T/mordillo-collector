@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 export async function PUT(
   request: NextRequest,
@@ -7,7 +7,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const item = await prisma.collectionItem.update({
+  const item = await db().collectionItem.update({
     where: { id: parseInt(id) },
     data: {
       condition: body.condition,
@@ -26,6 +26,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  await prisma.collectionItem.delete({ where: { id: parseInt(id) } });
+  await db().collectionItem.delete({ where: { id: parseInt(id) } });
   return NextResponse.json({ success: true });
 }

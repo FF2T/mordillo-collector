@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   }
 
   const [puzzles, total] = await Promise.all([
-    prisma.puzzle.findMany({
+    db().puzzle.findMany({
       where,
       orderBy,
       skip: (page - 1) * limit,
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
         collectionItems: { where: { userId: 1 }, take: 1 },
       },
     }),
-    prisma.puzzle.count({ where }),
+    db().puzzle.count({ where }),
   ]);
 
   const result = puzzles.map((p) => ({
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const puzzle = await prisma.puzzle.create({
+  const puzzle = await db().puzzle.create({
     data: {
       name: body.name,
       image: body.image || null,

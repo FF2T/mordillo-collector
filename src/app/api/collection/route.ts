@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 export async function GET() {
-  const items = await prisma.collectionItem.findMany({
+  const items = await db().collectionItem.findMany({
     where: { userId: 1 },
     include: { puzzle: true },
     orderBy: { puzzle: { name: 'asc' } },
@@ -12,7 +12,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const item = await prisma.collectionItem.create({
+  const item = await db().collectionItem.create({
     data: {
       puzzleId: body.puzzleId,
       userId: 1,

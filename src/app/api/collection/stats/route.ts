@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 export async function GET() {
   const [totalPuzzles, ownedItems, allPuzzles] = await Promise.all([
-    prisma.puzzle.count(),
-    prisma.collectionItem.findMany({
+    db().puzzle.count(),
+    db().collectionItem.findMany({
       where: { userId: 1 },
       include: { puzzle: true },
     }),
-    prisma.puzzle.findMany({
+    db().puzzle.findMany({
       select: { id: true, rarity: true, estimatedPrice: true },
     }),
   ]);

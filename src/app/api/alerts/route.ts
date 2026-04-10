@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 export async function GET() {
-  const alerts = await prisma.alert.findMany({
+  const alerts = await db().alert.findMany({
     where: { userId: 1 },
     include: {
       puzzle: { select: { id: true, name: true, image: true } },
@@ -17,7 +17,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const body = await request.json();
   if (body.markAllRead) {
-    await prisma.alert.updateMany({
+    await db().alert.updateMany({
       where: { userId: 1, isRead: false },
       data: { isRead: true },
     });
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (body.id) {
-    await prisma.alert.update({
+    await db().alert.update({
       where: { id: body.id },
       data: { isRead: true },
     });

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,
@@ -7,7 +7,7 @@ export async function POST(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const puzzle = await prisma.puzzle.update({
+  const puzzle = await db().puzzle.update({
     where: { id: parseInt(id) },
     data: {
       flagged: true,

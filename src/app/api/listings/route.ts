@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
@@ -14,14 +14,14 @@ export async function GET(request: NextRequest) {
   if (matched === 'false') where.puzzleId = null;
 
   const [listings, total] = await Promise.all([
-    prisma.marketListing.findMany({
+    db().marketListing.findMany({
       where,
       include: { puzzle: { select: { id: true, name: true, estimatedPrice: true } } },
       orderBy: { detectedAt: 'desc' },
       skip: (page - 1) * limit,
       take: limit,
     }),
-    prisma.marketListing.count({ where }),
+    db().marketListing.count({ where }),
   ]);
 
   const result = listings.map((l) => {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
@@ -61,10 +61,10 @@ export async function POST(request: NextRequest) {
     const name = vals[nameIdx];
     if (!name) continue;
 
-    const existing = await prisma.puzzle.findFirst({ where: { name } });
+    const existing = await db().puzzle.findFirst({ where: { name } });
     if (existing) { skipped++; continue; }
 
-    await prisma.puzzle.create({
+    await db().puzzle.create({
       data: {
         name,
         publisher: pubIdx >= 0 ? vals[pubIdx] || 'Unknown' : 'Unknown',

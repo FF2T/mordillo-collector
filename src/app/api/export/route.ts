@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 export async function GET() {
-  const items = await prisma.collectionItem.findMany({
+  const items = await db().collectionItem.findMany({
     where: { userId: 1 },
     include: { puzzle: true },
     orderBy: { puzzle: { name: 'asc' } },
