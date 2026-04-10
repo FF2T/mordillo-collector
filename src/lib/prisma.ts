@@ -4,32 +4,22 @@ import { createClient } from '@libsql/client';
 
 const globalForPrisma = globalThis as unknown as { prisma: InstanceType<typeof PrismaClient> };
 
-function getEnv(key: string): string | undefined {
-  // Avoid Turbopack inlining by using dynamic access
-  return (process as any)['env'][key];
-}
-
 function createPrismaClient() {
-  const url = getEnv('TURSO_DATABASE_URL') || getEnv('DATABASE_URL');
-  const authToken = getEnv('TURSO_AUTH_TOKEN');
+  const url = process.env['TURSO_DATABASE_URL'] || process.env['DATABASE_URL'];
+  const authToken = process.env['TURSO_AUTH_TOKEN'];
 
   if (!url) {
-    throw new Error(
-      `Database URL not set. TURSO_DATABASE_URL=${getEnv('TURSO_DATABASE_URL')}, DATABASE_URL=${getEnv('DATABASE_URL')}`
-    );
+    console.error('ENV DUMP:', JSON.stringify(Object.keys(process.env).filter(k => k.includes('TURSO') || k.includes('DATABASE'))));
+    throw new Error('Database URL not set');
   }
 
-  const libsql = createClient({
-    url,
-    authToken,
-  });
-
+  const libsql = createClient({ url, authToken });
   const adapter = new PrismaLibSql(libsql as any);
   return new PrismaClient({ adapter } as any);
 }
 
 export const prisma = globalForPrisma.prisma || createPrismaClient();
 
-if (getEnv('NODE_ENV') !== 'production') globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export default prisma;
