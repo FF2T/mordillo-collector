@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/lib/prisma';
+import _db from '@/lib/prisma';
+const db = () => _db(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN);
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
