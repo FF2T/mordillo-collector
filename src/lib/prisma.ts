@@ -4,12 +4,19 @@ import { createClient } from '@libsql/client';
 
 const globalForPrisma = globalThis as unknown as { prisma: InstanceType<typeof PrismaClient> };
 
+function getEnv(key: string): string | undefined {
+  // Avoid Turbopack inlining by using dynamic access
+  return (process as any)['env'][key];
+}
+
 function createPrismaClient() {
-  const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
-  const authToken = process.env.TURSO_AUTH_TOKEN;
+  const url = getEnv('TURSO_DATABASE_URL') || getEnv('DATABASE_URL');
+  const authToken = getEnv('TURSO_AUTH_TOKEN');
 
   if (!url) {
-    throw new Error('TURSO_DATABASE_URL or DATABASE_URL must be set');
+    throw new Error(
+      `Database URL not set. TURSO_DATABASE_URL=${getEnv('TURSO_DATABASE_URL')}, DATABASE_URL=${getEnv('DATABASE_URL')}`
+    );
   }
 
   const libsql = createClient({
@@ -23,6 +30,6 @@ function createPrismaClient() {
 
 export const prisma = globalForPrisma.prisma || createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (getEnv('NODE_ENV') !== 'production') globalForPrisma.prisma = prisma;
 
 export default prisma;
